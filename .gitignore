@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+
+# Build artifact (kept in git for drag-and-drop installs; uncomment to ignore)
+# main.js
