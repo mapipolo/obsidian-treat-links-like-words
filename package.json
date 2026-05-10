@@ -1,0 +1,20 @@
+{
+	"name": "obsidian-adjacent-link-delete",
+	"version": "1.0.0",
+	"description": "Obsidian plugin that deletes an adjacent wikilink or markdown link with word-delete shortcuts.",
+	"main": "main.js",
+	"author": "OpenCode",
+	"license": "MIT",
+	"keywords": [
+		"obsidian",
+		"obsidian-plugin",
+		"markdown",
+		"wikilink"
+	],
+	"engines": {
+		"obsidian": ">=1.5.0"
+	},
+	"scripts": {
+		"check": "node --check main.js"
+	}
+}

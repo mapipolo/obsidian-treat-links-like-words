@@ -1,0 +1,9 @@
+{
+	"id": "adjacent-link-delete",
+	"name": "Adjacent Link Delete",
+	"version": "1.0.0",
+	"minAppVersion": "1.5.0",
+	"description": "Deletes adjacent wikilinks and markdown links with word-delete shortcuts.",
+	"author": "OpenCode",
+	"isDesktopOnly": false
+}
