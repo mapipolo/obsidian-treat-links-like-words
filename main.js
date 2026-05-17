@@ -85,13 +85,27 @@ function planDeleteForward(line, col) {
     return null;
   return { from: col, to: hit.range.end };
 }
+var TRAILING_PUNCT_RE = /[,.:;!?]/;
 function planMoveLeft(line, col) {
   if (linkContaining(line, col))
     return null;
   const hit = linkBefore(line, col);
-  if (!hit)
+  if (hit)
+    return hit.range.start;
+  let i = col;
+  while (i > 0 && line.charAt(i - 1) === " ")
+    i--;
+  while (i > 0 && TRAILING_PUNCT_RE.test(line.charAt(i - 1)))
+    i--;
+  while (i > 0 && line.charAt(i - 1) === " ")
+    i--;
+  if (i === col)
     return null;
-  return hit.range.start;
+  for (const r of findLinksInLine(line)) {
+    if (r.end === i)
+      return r.start;
+  }
+  return null;
 }
 function planMoveRight(line, col) {
   if (linkContaining(line, col))

@@ -131,3 +131,35 @@ describe("Word-wise arrow movement skips over links", () => {
 		expect(planMoveRight(line, col)).toBeNull();
 	});
 });
+
+describe("Word-wise Left skips links followed by trailing punctuation", () => {
+	test("cursor directly after a trailing comma", () => {
+		// Link ends at the ']', comma is at that position, cursor is after comma.
+		const { line, col } = withCaret("Here's [[the bug]],^ rest");
+		const target = planMoveLeft(line, col);
+		expect(target).toBe(7); // start of '[[the bug]]'
+	});
+
+	test("cursor after space that follows a trailing comma", () => {
+		const { line, col } = withCaret("Here's [[the bug]], ^rest");
+		const target = planMoveLeft(line, col);
+		expect(target).toBe(7);
+	});
+
+	test("cursor after a trailing period", () => {
+		const { line, col } = withCaret("See [[this]].^ ok");
+		const target = planMoveLeft(line, col);
+		expect(target).toBe(4);
+	});
+
+	test("cursor after multiple trailing punctuation chars", () => {
+		const { line, col } = withCaret("[[link]]...^ rest");
+		const target = planMoveLeft(line, col);
+		expect(target).toBe(0);
+	});
+
+	test("does not trigger when a non-link word precedes the punctuation", () => {
+		const { line, col } = withCaret("hello world,^ more");
+		expect(planMoveLeft(line, col)).toBeNull();
+	});
+});
