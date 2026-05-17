@@ -97,6 +97,17 @@ convention for the word-jump modifier. When a binding fires, the plugin:
    (and any spaces between it and the cursor) or moves/extends the
    selection past the link.
 
+## Known issues
+
+The plugin now treats any non-word characters (spaces, punctuation, brackets,
+etc.) as transparent when determining adjacency, so links like `[[link]]?,`
+or `,(([[link]])` are handled correctly. However, when shrinking a selection
+toward the endpoints of a link's punctuation "halo", the behavior is not
+perfectly symmetrical in all edge cases. Specifically, expanding and then
+shrinking a selection may not always land the head at identical positions
+depending on the direction and the precise mix of punctuation. This is a
+low-priority cosmetic issue and does not affect practical usage.
+
 ## License
 
 MIT © Michael Pipolo &lt;mapipolo@gmail.com&gt;
