@@ -85,7 +85,7 @@ function planDeleteForward(line, col) {
     return null;
   return { from: col, to: hit.range.end };
 }
-var TRAILING_PUNCT_RE = /[,.:;!?]/;
+var PUNCT_RE = /[,.:;!?]/;
 function planMoveLeft(line, col) {
   if (linkContaining(line, col))
     return null;
@@ -95,7 +95,7 @@ function planMoveLeft(line, col) {
   let i = col;
   while (i > 0 && line.charAt(i - 1) === " ")
     i--;
-  while (i > 0 && TRAILING_PUNCT_RE.test(line.charAt(i - 1)))
+  while (i > 0 && PUNCT_RE.test(line.charAt(i - 1)))
     i--;
   while (i > 0 && line.charAt(i - 1) === " ")
     i--;
@@ -111,9 +111,22 @@ function planMoveRight(line, col) {
   if (linkContaining(line, col))
     return null;
   const hit = linkAfter(line, col);
-  if (!hit)
+  if (hit)
+    return hit.range.end;
+  let i = col;
+  while (i < line.length && line.charAt(i) === " ")
+    i++;
+  while (i < line.length && PUNCT_RE.test(line.charAt(i)))
+    i++;
+  while (i < line.length && line.charAt(i) === " ")
+    i++;
+  if (i === col)
     return null;
-  return hit.range.end;
+  for (const r of findLinksInLine(line)) {
+    if (r.start === i)
+      return r.end;
+  }
+  return null;
 }
 
 // main.ts

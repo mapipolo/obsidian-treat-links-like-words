@@ -163,3 +163,37 @@ describe("Word-wise Left skips links followed by trailing punctuation", () => {
 		expect(planMoveLeft(line, col)).toBeNull();
 	});
 });
+
+describe("Word-wise Right skips links preceded by leading punctuation", () => {
+	test("cursor directly before a leading comma", () => {
+		const { line, col } = withCaret("foo ^,[[the link]] bar");
+		const target = planMoveRight(line, col);
+		// "foo ,[[the link]]" — [[the link]] is 12 chars starting at 5, ends at 17
+		expect(target).toBe(17);
+	});
+
+	test("cursor before a space that precedes a leading comma", () => {
+		const { line, col } = withCaret("foo^ ,[[the link]] bar");
+		const target = planMoveRight(line, col);
+		expect(target).toBe(17);
+	});
+
+	test("cursor before a leading period", () => {
+		const { line, col } = withCaret("ok^.[[this]] end");
+		const target = planMoveRight(line, col);
+		// "ok.[[this]]" — [[this]] is 8 chars starting at 3, ends at 11
+		expect(target).toBe(11);
+	});
+
+	test("cursor before multiple leading punctuation chars", () => {
+		const { line, col } = withCaret("^...[[link]] rest");
+		const target = planMoveRight(line, col);
+		// "...[[link]]" — [[link]] is 8 chars starting at 3, ends at 11
+		expect(target).toBe(11);
+	});
+
+	test("does not trigger when a non-link word follows the punctuation", () => {
+		const { line, col } = withCaret("more ,^world end");
+		expect(planMoveRight(line, col)).toBeNull();
+	});
+});
