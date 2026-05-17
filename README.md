@@ -36,9 +36,10 @@ this is a ^ to a page
 ^ to a page
 ```
 
-Spaces between the cursor and the link are absorbed, but tabs and newlines
-are not — the plugin only acts when the link is immediately adjacent or
-separated by ordinary spaces.
+The plugin treats any non-word characters (spaces, punctuation, brackets, etc.)
+as transparent when determining if a link is adjacent to the cursor. This means
+links like `[[link]]?,` or `,(([[link]])` are handled correctly in one keystroke.
+Tabs and newlines are considered word boundaries and will not be crossed.
 
 If the cursor is **inside** a link, the plugin does nothing and the editor's
 normal word-wise behavior applies, so you can navigate within a long alias as
@@ -89,24 +90,24 @@ picks the right one at runtime, so the plugin always matches the OS-level
 convention for the word-jump modifier. When a binding fires, the plugin:
 
 1. Finds the cursor's line and column.
-2. Looks for a link adjacent to the cursor — possibly across one or more
-   ordinary space characters, but never across tabs or newlines.
+2. Looks for a link adjacent to the cursor — checking if only non-word
+   characters (spaces, punctuation, brackets, etc.) separate the cursor from
+   the nearest link. Tabs and newlines are not crossed.
 3. If the cursor is *inside* a link, it returns `false` so the editor's
    default behavior runs.
 4. Otherwise it dispatches a transaction that either deletes the link
-   (and any spaces between it and the cursor) or moves/extends the
-   selection past the link.
+   (and any non-word characters between it and the cursor) or moves/extends
+   the selection past the link.
 
 ## Known issues
 
-The plugin now treats any non-word characters (spaces, punctuation, brackets,
+The plugin currently treats any non-word characters (spaces, punctuation, brackets,
 etc.) as transparent when determining adjacency, so links like `[[link]]?,`
-or `,(([[link]])` are handled correctly. However, when shrinking a selection
-toward the endpoints of a link's punctuation "halo", the behavior is not
-perfectly symmetrical in all edge cases. Specifically, expanding and then
+or `([[link]])` are handled correctly. However, when shrinking a selection
+across the endpoints of a link's punctuation "halo", the behavior is not
+perfectly symmetrical in all cases. Specifically, expanding and then
 shrinking a selection may not always land the head at identical positions
-depending on the direction and the precise mix of punctuation. This is a
-low-priority cosmetic issue and does not affect practical usage.
+depending on the direction and the precise mix of punctuation.
 
 ## License
 
