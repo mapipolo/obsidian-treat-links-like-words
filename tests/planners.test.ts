@@ -132,67 +132,71 @@ describe("Word-wise arrow movement skips over links", () => {
 	});
 });
 
-describe("Word-wise Left skips links followed by trailing punctuation", () => {
+describe("Word-wise Left skips links separated by any non-word characters", () => {
 	test("cursor directly after a trailing comma", () => {
-		// Link ends at the ']', comma is at that position, cursor is after comma.
 		const { line, col } = withCaret("Here's [[the bug]],^ rest");
-		const target = planMoveLeft(line, col);
-		expect(target).toBe(7); // start of '[[the bug]]'
+		expect(planMoveLeft(line, col)).toBe(7); // start of '[[the bug]]'
 	});
 
 	test("cursor after space that follows a trailing comma", () => {
 		const { line, col } = withCaret("Here's [[the bug]], ^rest");
-		const target = planMoveLeft(line, col);
-		expect(target).toBe(7);
+		expect(planMoveLeft(line, col)).toBe(7);
 	});
 
 	test("cursor after a trailing period", () => {
 		const { line, col } = withCaret("See [[this]].^ ok");
-		const target = planMoveLeft(line, col);
-		expect(target).toBe(4);
+		expect(planMoveLeft(line, col)).toBe(4);
 	});
 
 	test("cursor after multiple trailing punctuation chars", () => {
 		const { line, col } = withCaret("[[link]]...^ rest");
-		const target = planMoveLeft(line, col);
-		expect(target).toBe(0);
+		expect(planMoveLeft(line, col)).toBe(0);
 	});
 
-	test("does not trigger when a non-link word precedes the punctuation", () => {
+	test("cursor after trailing parenthesis and question mark", () => {
+		// User's reported case: ([[link]]?)
+		const { line, col } = withCaret("([[link]]?)^ end");
+		expect(planMoveLeft(line, col)).toBe(1); // start of '[[link]]'
+	});
+
+	test("does not trigger when a non-link word precedes the non-word chars", () => {
 		const { line, col } = withCaret("hello world,^ more");
 		expect(planMoveLeft(line, col)).toBeNull();
 	});
 });
 
-describe("Word-wise Right skips links preceded by leading punctuation", () => {
+describe("Word-wise Right skips links separated by any non-word characters", () => {
 	test("cursor directly before a leading comma", () => {
 		const { line, col } = withCaret("foo ^,[[the link]] bar");
-		const target = planMoveRight(line, col);
 		// "foo ,[[the link]]" — [[the link]] is 12 chars starting at 5, ends at 17
-		expect(target).toBe(17);
+		expect(planMoveRight(line, col)).toBe(17);
 	});
 
 	test("cursor before a space that precedes a leading comma", () => {
 		const { line, col } = withCaret("foo^ ,[[the link]] bar");
-		const target = planMoveRight(line, col);
-		expect(target).toBe(17);
+		expect(planMoveRight(line, col)).toBe(17);
 	});
 
 	test("cursor before a leading period", () => {
 		const { line, col } = withCaret("ok^.[[this]] end");
-		const target = planMoveRight(line, col);
 		// "ok.[[this]]" — [[this]] is 8 chars starting at 3, ends at 11
-		expect(target).toBe(11);
+		expect(planMoveRight(line, col)).toBe(11);
 	});
 
 	test("cursor before multiple leading punctuation chars", () => {
 		const { line, col } = withCaret("^...[[link]] rest");
-		const target = planMoveRight(line, col);
 		// "...[[link]]" — [[link]] is 8 chars starting at 3, ends at 11
-		expect(target).toBe(11);
+		expect(planMoveRight(line, col)).toBe(11);
 	});
 
-	test("does not trigger when a non-link word follows the punctuation", () => {
+	test("cursor before leading parenthesis", () => {
+		// Symmetric case: ,(([[link]]
+		const { line, col } = withCaret("foo ^(([[link]]) bar");
+		// "(([[link]]" — [[link]] starts at 6, ends at 14
+		expect(planMoveRight(line, col)).toBe(14);
+	});
+
+	test("does not trigger when a non-link word follows the non-word chars", () => {
 		const { line, col } = withCaret("more ,^world end");
 		expect(planMoveRight(line, col)).toBeNull();
 	});

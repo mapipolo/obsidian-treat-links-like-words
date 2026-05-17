@@ -117,35 +117,25 @@ export function planDeleteForward(line: string, col: number): LineEdit | null {
 	return { from: col, to: hit.range.end };
 }
 
-// Punctuation that may appear immediately adjacent to a link in prose,
-// either trailing (e.g. [[link]],) or leading (e.g. ,[[link]]).
-// Both planMoveLeft and planMoveRight walk over these when searching for
-// an adjacent link.
-const PUNCT_RE = /[,.:;!?]/;
-
 /**
  * Compute the new cursor column for a word-wise Left jump that should
  * skip over an adjacent link. Returns null if the plugin should not
  * intervene.
  *
- * Also handles the case where punctuation sits between the link and the
- * cursor (e.g. "[[link]], ^" — the comma would otherwise block
- * `linkBefore` from finding the link).
+ * "Adjacent" means the text between the link's end and the cursor
+ * contains only non-word characters (\W* — spaces, punctuation,
+ * brackets, etc.).  This is consistent with standard word-boundary
+ * semantics and handles cases like "[[link]], ", "[[link]]?)",
+ * and "[[link]]…" without needing a hard-coded punctuation list.
  */
 export function planMoveLeft(line: string, col: number): number | null {
 	if (linkContaining(line, col)) return null;
-	const hit = linkBefore(line, col);
-	if (hit) return hit.range.start;
-
-	// Extended search: walk back over spaces → punctuation → spaces,
-	// then check whether a link ends exactly there.
-	let i = col;
-	while (i > 0 && line.charAt(i - 1) === " ") i--;
-	while (i > 0 && PUNCT_RE.test(line.charAt(i - 1))) i--;
-	while (i > 0 && line.charAt(i - 1) === " ") i--;
-	if (i === col) return null; // nothing was skipped, no point re-checking
-	for (const r of findLinksInLine(line)) {
-		if (r.end === i) return r.start;
+	const links = findLinksInLine(line);
+	// Iterate right-to-left so we find the nearest link first.
+	for (let i = links.length - 1; i >= 0; i--) {
+		const r = links[i];
+		if (r.end > col) continue; // link is to the right of the cursor
+		if (/^\W*$/.test(line.slice(r.end, col))) return r.start;
 	}
 	return null;
 }
@@ -155,24 +145,16 @@ export function planMoveLeft(line: string, col: number): number | null {
  * skip over an adjacent link. Returns null if the plugin should not
  * intervene.
  *
- * Also handles the case where punctuation sits between the cursor and
- * the link (e.g. " ,[[link]]" — the comma would otherwise block
- * `linkAfter` from finding the link).
+ * Mirror of planMoveLeft: "adjacent" means only \W* characters separate
+ * the cursor from the link's start, so leading punctuation like
+ * ",[[link]]" is handled symmetrically.
  */
 export function planMoveRight(line: string, col: number): number | null {
 	if (linkContaining(line, col)) return null;
-	const hit = linkAfter(line, col);
-	if (hit) return hit.range.end;
-
-	// Extended search: walk forward over spaces → punctuation → spaces,
-	// then check whether a link starts exactly there.
-	let i = col;
-	while (i < line.length && line.charAt(i) === " ") i++;
-	while (i < line.length && PUNCT_RE.test(line.charAt(i))) i++;
-	while (i < line.length && line.charAt(i) === " ") i++;
-	if (i === col) return null; // nothing was skipped, no point re-checking
+	// Iterate left-to-right so we find the nearest link first.
 	for (const r of findLinksInLine(line)) {
-		if (r.start === i) return r.end;
+		if (r.start < col) continue; // link is to the left of the cursor
+		if (/^\W*$/.test(line.slice(col, r.start))) return r.end;
 	}
 	return null;
 }
