@@ -4,7 +4,7 @@ export interface LinkRange {
 }
 
 // text/url are non-greedy; no "[", "]", ")", or newline inside to avoid over-matching
-const LINK_PATTERN = /\[\[[^\[\]\n]+?\]\]|\[[^\[\]\n]*?\]\([^)\n]*?\)/g;
+const LINK_PATTERN = /\[\[[^[\]\n]+?\]\]|\[[^[\]\n]*?\]\([^)\n]*?\)/g;
 
 export function findLinksInLine(line: string): LinkRange[] {
 	const out: LinkRange[] = [];

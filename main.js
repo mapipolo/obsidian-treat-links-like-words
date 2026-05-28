@@ -26,7 +26,7 @@ var import_obsidian = require("obsidian");
 var import_view = require("@codemirror/view");
 
 // src/linkUtils.ts
-var LINK_PATTERN = /\[\[[^\[\]\n]+?\]\]|\[[^\[\]\n]*?\]\([^)\n]*?\)/g;
+var LINK_PATTERN = /\[\[[^[\]\n]+?\]\]|\[[^[\]\n]*?\]\([^)\n]*?\)/g;
 function findLinksInLine(line) {
   const out = [];
   LINK_PATTERN.lastIndex = 0;
