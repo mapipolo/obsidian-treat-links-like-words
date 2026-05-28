@@ -1,30 +1,11 @@
-/**
- * Pure helpers for finding wikilinks and Markdown links adjacent to a cursor.
- *
- * A "link" is either:
- *   - A wikilink:    [[target]] or [[target|alias]]  (target may contain "/" or "#")
- *   - A Markdown link: [text](url)                   (text and url are non-greedy)
- *
- * These helpers know nothing about CodeMirror or Obsidian; they operate on
- * plain strings and offsets so they can be tested in isolation.
- */
-
 export interface LinkRange {
-	/** Inclusive start offset of the link in the line. */
-	start: number;
-	/** Exclusive end offset of the link in the line. */
-	end: number;
+	start: number; // inclusive
+	end: number;   // exclusive
 }
 
-// Wikilink: [[ ... ]] where the inside contains no "[" or "]" or newline.
-// Markdown link: [text](url) where text contains no "[" or "]" or newline,
-// and url contains no ")" or newline. (Good enough for typical Obsidian content.)
+// text/url are non-greedy; no "[", "]", ")", or newline inside to avoid over-matching
 const LINK_PATTERN = /\[\[[^\[\]\n]+?\]\]|\[[^\[\]\n]*?\]\([^)\n]*?\)/g;
 
-/**
- * Find every link in a single line of text.
- * Caller is responsible for splitting input by "\n".
- */
 export function findLinksInLine(line: string): LinkRange[] {
 	const out: LinkRange[] = [];
 	LINK_PATTERN.lastIndex = 0;
@@ -35,11 +16,6 @@ export function findLinksInLine(line: string): LinkRange[] {
 	return out;
 }
 
-/**
- * If `pos` falls strictly inside a link in `line` (not at either edge),
- * return that link. Otherwise return null. Being "inside" means the
- * cursor is between characters of the link, not at its boundary.
- */
 export function linkContaining(line: string, pos: number): LinkRange | null {
 	for (const r of findLinksInLine(line)) {
 		if (pos > r.start && pos < r.end) return r;
@@ -47,12 +23,6 @@ export function linkContaining(line: string, pos: number): LinkRange | null {
 	return null;
 }
 
-/**
- * Find a link immediately to the LEFT of `pos`, optionally separated by
- * one or more space characters (NOT tabs or newlines — line is one line).
- * The returned range covers the link itself; use `spacesBefore` to know
- * how many spaces sit between the link's end and `pos`.
- */
 export function linkBefore(
 	line: string,
 	pos: number
@@ -68,10 +38,6 @@ export function linkBefore(
 	return null;
 }
 
-/**
- * Find a link immediately to the RIGHT of `pos`, optionally separated by
- * one or more space characters. Mirror of `linkBefore`.
- */
 export function linkAfter(
 	line: string,
 	pos: number
@@ -88,20 +54,11 @@ export function linkAfter(
 
 // ---- High-level decisions (pure, framework-free) --------------------------
 
-/**
- * Describes a single replacement to apply to a line: delete the text in
- * [from, to) (column offsets) and place the cursor at `from`.
- */
 export interface LineEdit {
 	from: number;
 	to: number;
 }
 
-/**
- * Compute the effect of word-wise Backspace at `col` on `line`, but only
- * if there's a link to absorb. Returns null when the plugin should not
- * intervene (cursor inside a link, no link adjacent, etc.).
- */
 export function planDeleteBackward(line: string, col: number): LineEdit | null {
 	if (linkContaining(line, col)) return null;
 	const hit = linkBefore(line, col);
@@ -109,7 +66,6 @@ export function planDeleteBackward(line: string, col: number): LineEdit | null {
 	return { from: hit.range.start, to: col };
 }
 
-/** Mirror of `planDeleteBackward` for word-wise Delete. */
 export function planDeleteForward(line: string, col: number): LineEdit | null {
 	if (linkContaining(line, col)) return null;
 	const hit = linkAfter(line, col);
@@ -117,17 +73,7 @@ export function planDeleteForward(line: string, col: number): LineEdit | null {
 	return { from: col, to: hit.range.end };
 }
 
-/**
- * Compute the new cursor column for a word-wise Left jump that should
- * skip over an adjacent link. Returns null if the plugin should not
- * intervene.
- *
- * "Adjacent" means the text between the link's end and the cursor
- * contains only non-word characters (\W* — spaces, punctuation,
- * brackets, etc.).  This is consistent with standard word-boundary
- * semantics and handles cases like "[[link]], ", "[[link]]?)",
- * and "[[link]]…" without needing a hard-coded punctuation list.
- */
+// \W* adjacency: cross spaces, punctuation, brackets — but not tabs or word chars
 export function planMoveLeft(line: string, col: number): number | null {
 	if (linkContaining(line, col)) return null;
 	const links = findLinksInLine(line);
@@ -140,15 +86,6 @@ export function planMoveLeft(line: string, col: number): number | null {
 	return null;
 }
 
-/**
- * Compute the new cursor column for a word-wise Right jump that should
- * skip over an adjacent link. Returns null if the plugin should not
- * intervene.
- *
- * Mirror of planMoveLeft: "adjacent" means only \W* characters separate
- * the cursor from the link's start, so leading punctuation like
- * ",[[link]]" is handled symmetrically.
- */
 export function planMoveRight(line: string, col: number): number | null {
 	if (linkContaining(line, col)) return null;
 	// Iterate left-to-right so we find the nearest link first.
@@ -159,11 +96,6 @@ export function planMoveRight(line: string, col: number): number | null {
 	return null;
 }
 
-/**
- * Apply a `LineEdit` to a line, returning the new line text and the new
- * cursor column. Useful for tests that assert end-to-end behavior on a
- * single line.
- */
 export function applyLineEdit(
 	line: string,
 	edit: LineEdit

@@ -108,7 +108,3 @@ across the endpoints of a link's punctuation "halo", the behavior is not
 perfectly symmetrical in all cases. Specifically, expanding and then
 shrinking a selection may not always land the head at identical positions
 depending on the direction and the precise mix of punctuation.
-
-## License
-
-MIT © Michael Pipolo &lt;mapipolo@gmail.com&gt;

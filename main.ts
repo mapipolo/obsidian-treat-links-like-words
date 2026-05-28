@@ -8,11 +8,6 @@ import {
 	planMoveRight,
 } from "./src/linkUtils";
 
-/**
- * Given the editor view and a single primary cursor head, return the line
- * text and the column offset of the cursor within that line, or null if
- * the selection is non-empty / multi-range (we let CM handle those).
- */
 interface CursorContext {
 	line: string;
 	lineFrom: number; // absolute doc offset of column 0
@@ -32,7 +27,7 @@ function getCursorContext(view: EditorView): CursorContext | null {
 	};
 }
 
-/** Same, but allowing non-empty selections — used for shift+arrow extensions. */
+// allows non-empty selections — used for shift+arrow extensions
 function getHeadContext(view: EditorView) {
 	const sel = view.state.selection;
 	if (sel.ranges.length !== 1) return null;
@@ -49,8 +44,6 @@ function getHeadContext(view: EditorView) {
 
 // ---- Commands ---------------------------------------------------------------
 
-/** Word-wise Backspace: if a link sits to the left (possibly after spaces),
- *  delete from the cursor back through those spaces and the link. */
 function deleteWordBackwardOverLink(view: EditorView): boolean {
 	const ctx = getCursorContext(view);
 	if (!ctx) return false;
@@ -66,7 +59,6 @@ function deleteWordBackwardOverLink(view: EditorView): boolean {
 	return true;
 }
 
-/** Word-wise Delete: mirror of the above for Delete/Forward-delete. */
 function deleteWordForwardOverLink(view: EditorView): boolean {
 	const ctx = getCursorContext(view);
 	if (!ctx) return false;
@@ -82,7 +74,6 @@ function deleteWordForwardOverLink(view: EditorView): boolean {
 	return true;
 }
 
-/** Word-wise Left Arrow: jump cursor over the link to the left. */
 function moveWordLeftOverLink(view: EditorView): boolean {
 	const ctx = getCursorContext(view);
 	if (!ctx) return false;
@@ -95,7 +86,6 @@ function moveWordLeftOverLink(view: EditorView): boolean {
 	return true;
 }
 
-/** Word-wise Right Arrow: jump cursor over the link to the right. */
 function moveWordRightOverLink(view: EditorView): boolean {
 	const ctx = getCursorContext(view);
 	if (!ctx) return false;
@@ -108,7 +98,6 @@ function moveWordRightOverLink(view: EditorView): boolean {
 	return true;
 }
 
-/** Shift+word+Left: extend selection over the link to the left. */
 function selectWordLeftOverLink(view: EditorView): boolean {
 	const ctx = getHeadContext(view);
 	if (!ctx) return false;
@@ -121,7 +110,6 @@ function selectWordLeftOverLink(view: EditorView): boolean {
 	return true;
 }
 
-/** Shift+word+Right: extend selection over the link to the right. */
 function selectWordRightOverLink(view: EditorView): boolean {
 	const ctx = getHeadContext(view);
 	if (!ctx) return false;
@@ -136,12 +124,7 @@ function selectWordRightOverLink(view: EditorView): boolean {
 
 // ---- Keymap -----------------------------------------------------------------
 
-/**
- * Build the CodeMirror keymap. CM's "Mod" means Cmd on Mac, Ctrl elsewhere;
- * for word movement we want Alt on Mac and Ctrl elsewhere, which CM exposes
- * via the "Alt-…"/"Ctrl-…" platform-specific bindings. We use both forms in a
- * single binding via the `mac` field so the right one is picked at runtime.
- */
+// CM's "Mod" is Cmd/Ctrl; word-movement needs Alt on Mac + Ctrl elsewhere, so we use the Mac field.
 function buildKeymap(): KeyBinding[] {
 	const mk = (
 		winKey: string,
