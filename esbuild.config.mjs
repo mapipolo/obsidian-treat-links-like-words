@@ -5,7 +5,7 @@ import builtins from "builtin-modules";
 const prod = process.argv[2] === "production";
 
 const context = await esbuild.context({
-	entryPoints: ["main.ts"],
+	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [
 		"obsidian",
@@ -21,14 +21,15 @@ const context = await esbuild.context({
 		"@lezer/common",
 		"@lezer/highlight",
 		"@lezer/lr",
-		...builtins
+		...builtins,
 	],
 	format: "cjs",
 	target: "es2018",
 	logLevel: "info",
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
-	outfile: "main.js"
+	outfile: "main.js",
+	minify: prod,
 });
 
 if (prod) {

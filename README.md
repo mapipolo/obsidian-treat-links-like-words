@@ -1,8 +1,6 @@
 # Treat Links Like Words
 
-An [Obsidian](https://obsidian.md) plugin that makes wikilinks and Markdown
-links behave as **a single word** when you use word-wise cursor movement,
-selection, and deletion.
+An [Obsidian](https://obsidian.md) plugin that makes the editor treat wikilinks and Markdown links like whole words when using `Option/Ctrl+<ArrowKey>` to do wordwise editing operations: cursor movement, selection, and deletion.
 
 | Action                          | Mac default      | Windows / Linux default |
 | ------------------------------- | ---------------- | ----------------------- |
@@ -11,10 +9,14 @@ selection, and deletion.
 | Delete previous word            | `Option+Backspace` | `Ctrl+Backspace`      |
 | Delete next word                | `Option+Delete`  | `Ctrl+Delete`           |
 
-With this plugin enabled, those shortcuts treat an entire link
-(e.g. `[[some/folder/page#heading|alias]]` or `[caption](https://example.com)`)
-as a single word. The plugin uses `Option` on macOS and `Ctrl` on
-Windows/Linux, matching the OS / Obsidian convention for word-wise navigation.
+With this plugin enabled, those shortcuts treat an entire link (e.g. `[[note]]` or `[[some/folder/page#heading|alias]]` or `[caption](https://example.com)`)
+as a single word: e.g., pressing `Option+Backspace` once when the cursor is positioned to the right of the link will delete the entire link.
+
+## Motivation
+
+I use the alt key to make word-wise edits frequently, and I found that in almost every case I wanted links to be treated the same as words — I almost never wanted the default behavior of stepping through a link character group by character group.
+
+> **Note:** This plugin overrides the editor's native word-wise key bindings (`Option/Ctrl` + arrows, `Backspace`, and `Delete`) at the CodeMirror layer so it can extend them to links. When the cursor is inside a link, it falls through to the default behavior, but be aware that it intercepts these keys globally while enabled.
 
 ## Examples
 
@@ -61,9 +63,8 @@ usual.
 
 1. Clone or download this repository.
 2. Run `npm install` and then `npm run build` to produce `main.js`.
-3. Copy the folder containing `main.js`, `manifest.json`, and (optionally)
-   `styles.css` into your vault under
-   `<your-vault>/.obsidian/plugins/treat-links-like-words/`.
+3. Copy the folder containing `main.js` and `manifest.json` into your vault
+   under `<your-vault>/.obsidian/plugins/treat-links-like-words/`.
 4. In Obsidian, open **Settings → Community plugins**, refresh the list, and
    enable **Treat Links Like Words**.
 
@@ -76,11 +77,11 @@ steps 1–2 and copy the repo's files directly.
 npm install      # install deps
 npm run dev      # watch-build main.js
 npm run build    # type-check and produce production main.js
-npm test         # run the Jest test suite
+npm test         # run the Vitest test suite
 ```
 
 The plugin's link-detection logic lives in `src/linkUtils.ts` as pure
-functions and is unit-tested in `tests/`.
+functions and is unit-tested in `test/`.
 
 ## How it works
 

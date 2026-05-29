@@ -1,37 +1,40 @@
 {
-	"name": "treat-links-like-words",
-	"version": "1.0.0",
-	"description": "Obsidian plugin that makes wikilinks and Markdown links behave as single words for word-wise cursor movement, selection, and deletion.",
-	"main": "main.js",
-	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"lint": "eslint main.ts src/",
-		"test": "vitest run",
-		"test:watch": "vitest"
-	},
-	"keywords": [
-		"obsidian",
-		"obsidian-plugin",
-		"links",
-		"wikilinks",
-		"editor"
-	],
-	"author": "Michael Pipolo <mapipolo@gmail.com>",
-	"license": "MIT",
-	"devDependencies": {
-		"@codemirror/state": "^6.5.0",
-		"@codemirror/view": "^6.38.6",
-		"@types/node": "^20.11.0",
-		"@typescript-eslint/parser": "^8.60.0",
-		"builtin-modules": "^3.3.0",
-		"esbuild": "^0.20.0",
-		"eslint": "^9.39.4",
-		"eslint-plugin-obsidianmd": "^0.3.0",
-		"obsidian": "latest",
-		"tslib": "^2.6.2",
-		"typescript": "^5.3.3",
-		"typescript-eslint": "^8.60.0",
-		"vitest": "^2.0.0"
-	}
+  "name": "treat-links-like-words",
+  "version": "1.0.0",
+  "description": "Makes wikilinks and Markdown links behave as single words for word-wise cursor movement, selection, and deletion.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "links",
+    "wikilinks",
+    "editor"
+  ],
+  "author": "Michael Pipolo <mapipolo@gmail.com>",
+  "license": "MIT",
+  "overrides": {
+    "@codemirror/state": "6.6.0"
+  },
+  "devDependencies": {
+    "@codemirror/state": "6.6.0",
+    "@codemirror/view": "6.38.6",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/parser": "^8.60.0",
+    "builtin-modules": "^5.0.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-obsidianmd": "^0.3.0",
+    "obsidian": "latest",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.60.0",
+    "vitest": "^3.0.0"
+  }
 }

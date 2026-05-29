@@ -6,7 +6,7 @@ import {
 	planDeleteForward,
 	planMoveLeft,
 	planMoveRight,
-} from "./src/linkUtils";
+} from "./linkUtils";
 
 interface CursorContext {
 	line: string;

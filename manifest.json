@@ -1,10 +1,10 @@
 {
-	"id": "treat-links-like-words",
-	"name": "Treat Links Like Words",
-	"version": "1.0.0",
-	"minAppVersion": "1.0.0",
-	"description": "Makes wikilinks and Markdown links behave as single words when using word-wise cursor movement, selection, and deletion (Option on Mac, Ctrl on Windows/Linux).",
-	"author": "Michael Pipolo",
-	"authorUrl": "https://github.com/mapipolo",
-	"isDesktopOnly": false
+  "id": "treat-links-like-words",
+  "name": "Treat Links Like Words",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Makes wikilinks and Markdown links behave as single words when using word-wise cursor movement, selection, and deletion (Option on Mac, Ctrl on Windows/Linux).",
+  "author": "Michael Pipolo",
+  "authorUrl": "https://github.com/mapipolo",
+  "isDesktopOnly": false
 }
